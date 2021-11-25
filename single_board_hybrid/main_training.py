@@ -148,7 +148,7 @@ for epoch in range(0, n_epoch):
         logprobs = 0
         reward = 0
         Y = X.view(B,len(X))
-        x = Y[:,0]
+        x = Y[:,0] #set the single batch to the x 
         h = None
         c = None
         context = None
@@ -161,5 +161,7 @@ for epoch in range(0, n_epoch):
             idx = sampler.sample()
             # prepare for the back propagation of pytorch
             Y1 = Y[zero_to_bsz, idx.data].clone()
-            if k == 0:
+            if k == 0: #if this is the first point 
                 Y_ini = Y1.clone()
+            if k > 0: 
+                reward = torch.sum((Y1-Y0)**2,dim = ?
