@@ -33,14 +33,44 @@ class input_handler:
             else:
                 long_side = len(rectangle[0])
             if (int(long_side / self.target_metrices[1]) % 2 == 0):
-                corners = [[[x, y], [x + len(rectangle), y]],\
-                           [[x, y + len(rectangle[0])], [x + len(rectangle), y + len(rectangle[0])]]]
+                corners = [[x, y], [x + len(rectangle), y],\
+                           [x, y + len(rectangle[0])], [x + len(rectangle), y + len(rectangle[0])]]
             else:
-                corners = [[[[x, y], [x + len(rectangle), y + len(rectangle[0])]]],\
-                           [[x + len(rectangle), y], [x, y + len(rectangle[0])]]]
+                corners = [[x, y], [x + len(rectangle), y + len(rectangle[0])],\
+                           [x + len(rectangle), y], [x, y + len(rectangle[0])]]
             X_all.append(corners)
         return X_all
-
+    def point_scale(self):
+        X_all = []
+        for matrix in self.target_metrices[0]:
+            x = matrix[1]
+            y = matrix[2]
+            rectangle = matrix[0]
+            if len(rectangle) > len(rectangle[0]):
+                long_side = len(rectangle)
+            else:
+                long_side = len(rectangle[0])   
+            if(int(long_side / self.targetmatrices[1] % 2 == 0)):
+                odd_even = 0
+            else:
+                odd_even = 1
+            X_all.append([x,y,len(rectangle),len(rectangle[0]),odd_even])
+        return X_all
+    def every_point(self):
+        X_all = []
+        for matrix in self.target_metrices[0]:
+            rectangle = matrix[0]
+            x_ru = matrix[1]
+            y_ru = matrix[2]
+            x_lu = x_ru + len(rectangle)
+            y_lu = y_ru
+            x_rd = x_ru
+            y_rd = y_ru + len(rectangle[0])
+            x_ld = x_lu 
+            y_ld = y_rd 
+            
+            X_all.extend([[x_ru,y_ru],[x_lu,y_lu],[x_rd,y_rd],[x_ld,y_ld]])
+        return X_all
 '''
 test = cnc_input.main(['-i', 'right_chip.json'])
 print(test[9][0])
