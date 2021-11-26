@@ -60,17 +60,33 @@ class input_handler:
         X_all = []
         for matrix in self.target_metrices[0]:
             rectangle = matrix[0]
-            x_ru = matrix[1]
-            y_ru = matrix[2]
-            x_lu = x_ru + len(rectangle)
-            y_lu = y_ru
-            x_rd = x_ru
-            y_rd = y_ru + len(rectangle[0])
-            x_ld = x_lu 
-            y_ld = y_rd 
+            x_lu = matrix[1]
+            y_lu = matrix[2]
+            x_ru = x_lu + len(rectangle)
+            y_ru = y_lu
+            x_ld = x_lu
+            y_ld = y_lu + len(rectangle[0])
+            x_rd = x_ru 
+            y_rd = y_ld 
             
-            X_all.extend([[x_ru,y_ru],[x_lu,y_lu],[x_rd,y_rd],[x_ld,y_ld]])
+            X_all.extend([[x_lu,y_lu],[x_ru,y_ru],[x_rd,y_rd],[x_ld,y_ld]])
         return X_all
+    def is_odd_is_row(self,point_Lu,point_Ru,point_Rd,point_Ld):
+        if (point_Lu[0] - point_Ru[0]) > (point_Ld[1] - point_Lu[1]):
+            long_side = point_Lu[0] - point_Ru[0]
+            if (int(long_side % self.target_metrices[1]) == 0):
+                return (0,0)
+            else:
+                return (1,0)
+            
+        else:
+            long_side = point_Ld[1] - point_Lu[1]
+            if (int(long_side % self.target_metrices[1]) == 0):
+                return (0,1)
+            else:
+                return (1,1)            
+            
+        
 '''
 test = cnc_input.main(['-i', 'right_chip.json'])
 print(test[9][0])

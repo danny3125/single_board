@@ -73,7 +73,7 @@ print('======================')
 instantiate a training network and a baseline network
 '''
 temp = input_handler('mother_board.json')
-X_val = temp.package_points()
+X_val = temp.every_point()
 X_val = torch.floatTensor(X_val)
 print(len(X_val))
 '''
@@ -161,7 +161,54 @@ for epoch in range(0, n_epoch):
             idx = sampler.sample()
             # prepare for the back propagation of pytorch
             Y1 = Y[zero_to_bsz, idx.data].clone()
+            # ***************# my own design for the situation of the rectangle field
+            # my arrangement of one rectangle is four corners: left-up ,right-up, right-down, left-down
+            if (Y1[1] == Y[zero_to_bsz, idx.data+1][1]):
+                if (Y[0] == Y[zero_to_bsz, idx.data-1][0]):
+                    # this is a right-down point
+                    kind_temp = input_handler()
+                    kind = kind_temp.is_odd_is_row(Y[zero_to_bsz, idx.data -2], Y[zero_to_bsz, idx.data -1],\
+                                                   Y1, Y[zero_to_bsz, idx.data +1])
+                    if kind == (0,0):#ends up at right-up point
+                    
+                    elif kind == (0,1):#ends up at left-down point
+                        
+                    else:#ends up at left-up point
+                    
+                else:
+                    # this is a left-up point 
+                    kind_temp = input_handler()
+                    kind = kind_temp.is_odd_is_row( Y1, Y[zero_to_bsz, idx.data +1], Y[zero_to_bsz, idx.data + 2],\
+                                                   Y[zero_to_bsz, idx.data +3])
+                    if kind == (0,0):#ends up at left-down point
+                    
+                    elif kind == (0,1):#ends up at right-up point
+                        
+                    else:#ends up at right-down point
+                    
+            else:
+                if (Y[0] == Y[zero_to_bsz, idx.data+1][0]):
+                    #this is a right-up point
+                    kind_temp = input_handler()
+                    kind = kind_temp.is_odd_is_row( Y[zero_to_bsz, idx.data -1],Y1, Y[zero_to_bsz, idx.data + 1],\
+                                                   Y[zero_to_bsz, idx.data +2])
+                    if kind == (0,0):#ends up at right-down point
+                    
+                    elif kind == (0,1):#ends up at left-up point
+                        
+                    else:#ends up at left-down point
+                else:
+                    #this is a left-down point 
+                    kind_temp = input_handler()
+                    kind = kind_temp.is_odd_is_row( Y[zero_to_bsz, idx.data -3], Y[zero_to_bsz, idx.data -2],\
+                                                   Y[zero_to_bsz, idx.data -1],Y1)
+                    if kind == (0,0):#ends up at left-up point
+                    
+                    elif kind == (0,1):#ends up at right-down point
+                        
+                    else:#ends up at right-up point
             if k == 0: #if this is the first point 
                 Y_ini = Y1.clone()
             if k > 0: 
-                reward = torch.sum((Y1-Y0)**2,dim = ?
+                reward = torch.sum((Y1-Y0)**2,dim =1)**0.5#computing the total distance of all points
+                Y0 = Y1.clone
