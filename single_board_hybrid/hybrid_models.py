@@ -279,3 +279,4 @@ class HPN(nn.Module):
         latent_u = u.clone()
         u = 10 * torch.tanh(u) + mask
         return context, Transcontext, F.softmax(u, dim=1), h, c, latent_u
+
