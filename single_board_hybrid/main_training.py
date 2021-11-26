@@ -161,6 +161,7 @@ for epoch in range(0, n_epoch):
             idx = sampler.sample()
             # prepare for the back propagation of pytorch
             Y1 = Y[zero_to_bsz, idx.data].clone()
+            Y0 = None
             # ***************# my own design for the situation of the rectangle field
             # my arrangement of one rectangle is four corners: left-up ,right-up, right-down, left-down
             if (Y1[1] == Y[zero_to_bsz, idx.data+1][1]):
@@ -170,22 +171,88 @@ for epoch in range(0, n_epoch):
                     kind = kind_temp.is_odd_is_row(Y[zero_to_bsz, idx.data -2], Y[zero_to_bsz, idx.data -1],\
                                                    Y1, Y[zero_to_bsz, idx.data +1])
                     if kind == (0,0):#ends up at right-up point
-                    
+                        if k == 0:
+                            Y_ini = Y[zero_to_bsz, idx.data -1]
+                        if k > 0:
+                            reward = torch.sum((Y1 - Y0)**2,dim =1)**0.5
+                            reward += torch.sum((Y[zero_to_bsz, idx.data -1] - Y1)**2,dim =1)**0.5
+                        Y0 = Y[zero_to_bsz,idx.data -1].clone()
+                        x = Y[zero_to_bsz, idx.data -1].clone()
+                        R += reward
+                        logprobs += torch.log(output[zero_to_bsz, idx.data] + TINY)
+                        mask[zero_to_bsz, idx.data] += -np.inf
+                        mask[zero_to_bsz, idx.data -2] += -np.inf
+                        mask[zero_to_bsz, idx.data +1] += -np.inf
                     elif kind == (0,1):#ends up at left-down point
-                        
+                        if k == 0:
+                            Y_ini = Y[zero_to_bsz, idx.data +1]
+                        if k > 0:
+                            reward = torch.sum((Y1 - Y0)**2,dim =1)**0.5
+                            reward += torch.sum((Y[zero_to_bsz, idx.data +1] - Y1)**2,dim =1)**0.5
+                        Y0 = Y[zero_to_bsz,idx.data +1].clone()
+                        x = Y[zero_to_bsz, idx.data +1].clone()
+                        R += reward
+                        logprobs += torch.log(output[zero_to_bsz, idx.data] + TINY)
+                        mask[zero_to_bsz, idx.data] += -np.inf
+                        mask[zero_to_bsz, idx.data-2] += -np.inf
+                        mask[zero_to_bsz, idx.data-1] += -np.inf
                     else:#ends up at left-up point
-                    
+                        if k == 0:
+                            Y_ini = Y[zero_to_bsz, idx.data -2]
+                        if k > 0:
+                            reward = torch.sum((Y1 - Y0)**2,dim =1)**0.5
+                            reward += torch.sum((Y[zero_to_bsz, idx.data -2] - Y1)**2,dim =1)**0.5
+                        Y0 = Y[zero_to_bsz,idx.data -2].clone()
+                        x = Y[zero_to_bsz, idx.data -2].clone()
+                        R += reward             
+                        logprobs += torch.log(output[zero_to_bsz, idx.data] + TINY)
+                        mask[zero_to_bsz, idx.data] += -np.inf
+                        mask[zero_to_bsz, idx.data+1] += -np.inf
+                        mask[zero_to_bsz, idx.data-1] += -np.inf
                 else:
                     # this is a left-up point 
                     kind_temp = input_handler()
                     kind = kind_temp.is_odd_is_row( Y1, Y[zero_to_bsz, idx.data +1], Y[zero_to_bsz, idx.data + 2],\
                                                    Y[zero_to_bsz, idx.data +3])
                     if kind == (0,0):#ends up at left-down point
-                    
+                        if k == 0:
+                            Y_ini = Y[zero_to_bsz, idx.data +3]
+                        if k > 0:
+                            reward = torch.sum((Y1 - Y0)**2,dim =1)**0.5
+                            reward += torch.sum((Y[zero_to_bsz, idx.data +3] - Y1)**2,dim =1)**0.5
+                        Y0 = Y[zero_to_bsz,idx.data +3].clone()
+                        x = Y[zero_to_bsz, idx.data +3].clone()
+                        R += reward      
+                        logprobs += torch.log(output[zero_to_bsz, idx.data] + TINY)
+                        mask[zero_to_bsz, idx.data] += -np.inf
+                        mask[zero_to_bsz, idx.data+2] += -np.inf
+                        mask[zero_to_bsz, idx.data+1] += -np.inf
                     elif kind == (0,1):#ends up at right-up point
-                        
+                        if k == 0:
+                            Y_ini = Y[zero_to_bsz, idx.data +2]
+                        if k > 0:
+                            reward = torch.sum((Y1 - Y0)**2,dim =1)**0.5
+                            reward += torch.sum((Y[zero_to_bsz, idx.data +2] - Y1)**2,dim =1)**0.5
+                        Y0 = Y[zero_to_bsz,idx.data +2].clone()
+                        x = Y[zero_to_bsz, idx.data +2].clone()
+                        R += reward      
+                        logprobs += torch.log(output[zero_to_bsz, idx.data] + TINY)
+                        mask[zero_to_bsz, idx.data] += -np.inf
+                        mask[zero_to_bsz, idx.data+3] += -np.inf
+                        mask[zero_to_bsz, idx.data+1] += -np.inf
                     else:#ends up at right-down point
-                    
+                        if k == 0:
+                            Y_ini = Y[zero_to_bsz, idx.data +1]
+                        if k > 0:
+                            reward = torch.sum((Y1 - Y0)**2,dim =1)**0.5
+                            reward += torch.sum((Y[zero_to_bsz, idx.data +1] - Y1)**2,dim =1)**0.5
+                        Y0 = Y[zero_to_bsz,idx.data +1].clone()
+                        x = Y[zero_to_bsz, idx.data +1].clone()
+                        R += reward                      
+                        logprobs += torch.log(output[zero_to_bsz, idx.data] + TINY)
+                        mask[zero_to_bsz, idx.data] += -np.inf
+                        mask[zero_to_bsz, idx.data+2] += -np.inf
+                        mask[zero_to_bsz, idx.data+3] += -np.inf
             else:
                 if (Y[0] == Y[zero_to_bsz, idx.data+1][0]):
                     #this is a right-up point
@@ -193,22 +260,260 @@ for epoch in range(0, n_epoch):
                     kind = kind_temp.is_odd_is_row( Y[zero_to_bsz, idx.data -1],Y1, Y[zero_to_bsz, idx.data + 1],\
                                                    Y[zero_to_bsz, idx.data +2])
                     if kind == (0,0):#ends up at right-down point
-                    
+                        if k == 0:
+                            Y_ini = Y[zero_to_bsz, idx.data +1]
+                        if k > 0:
+                            reward = torch.sum((Y1 - Y0)**2,dim =1)**0.5
+                            reward += torch.sum((Y[zero_to_bsz, idx.data +1] - Y1)**2,dim =1)**0.5
+                        Y0 = Y[zero_to_bsz,idx.data +1].clone()
+                        x = Y[zero_to_bsz, idx.data +1].clone()
+                        R += reward                 
+                        logprobs += torch.log(output[zero_to_bsz, idx.data] + TINY)
+                        mask[zero_to_bsz, idx.data] += -np.inf
+                        mask[zero_to_bsz, idx.data+2] += -np.inf
+                        mask[zero_to_bsz, idx.data-1] += -np.inf
                     elif kind == (0,1):#ends up at left-up point
-                        
+                        if k == 0:
+                            Y_ini = Y[zero_to_bsz, idx.data -1]
+                        if k > 0:
+                            reward = torch.sum((Y1 - Y0)**2,dim =1)**0.5
+                            reward += torch.sum((Y[zero_to_bsz, idx.data -1] - Y1)**2,dim =1)**0.5
+                        Y0 = Y[zero_to_bsz,idx.data -1].clone()
+                        x = Y[zero_to_bsz, idx.data -1].clone()
+                        R += reward            
+                        logprobs += torch.log(output[zero_to_bsz, idx.data] + TINY)
+                        mask[zero_to_bsz, idx.data] += -np.inf
+                        mask[zero_to_bsz, idx.data+1] += -np.inf
+                        mask[zero_to_bsz, idx.data+2] += -np.inf
                     else:#ends up at left-down point
+                        if k == 0:
+                            Y_ini = Y[zero_to_bsz, idx.data +2]
+                        if k > 0:
+                            reward = torch.sum((Y1 - Y0)**2,dim =1)**0.5
+                            reward += torch.sum((Y[zero_to_bsz, idx.data +2] - Y1)**2,dim =1)**0.5
+                        Y0 = Y[zero_to_bsz,idx.data +2].clone()
+                        x = Y[zero_to_bsz, idx.data +2].clone()
+                        R += reward  
+                        logprobs += torch.log(output[zero_to_bsz, idx.data] + TINY)
+                        mask[zero_to_bsz, idx.data] += -np.inf
+                        mask[zero_to_bsz, idx.data+2] += -np.inf
+                        mask[zero_to_bsz, idx.data-1] += -np.inf
                 else:
                     #this is a left-down point 
                     kind_temp = input_handler()
                     kind = kind_temp.is_odd_is_row( Y[zero_to_bsz, idx.data -3], Y[zero_to_bsz, idx.data -2],\
                                                    Y[zero_to_bsz, idx.data -1],Y1)
                     if kind == (0,0):#ends up at left-up point
-                    
+                        if k == 0:
+                            Y_ini = Y[zero_to_bsz, idx.data -3]
+                        if k > 0:
+                            reward = torch.sum((Y1 - Y0)**2,dim =1)**0.5
+                            reward += torch.sum((Y[zero_to_bsz, idx.data -3] - Y1)**2,dim =1)**0.5
+                        Y0 = Y[zero_to_bsz,idx.data -3].clone()
+                        x = Y[zero_to_bsz, idx.data -3].clone()
+                        R += reward  
+                        logprobs += torch.log(output[zero_to_bsz, idx.data] + TINY)
+                        mask[zero_to_bsz, idx.data] += -np.inf
+                        mask[zero_to_bsz, idx.data-2] += -np.inf
+                        mask[zero_to_bsz, idx.data-1] += -np.inf
                     elif kind == (0,1):#ends up at right-down point
-                        
+                        if k == 0:
+                            Y_ini = Y[zero_to_bsz, idx.data -1]
+                        if k > 0:
+                            reward = torch.sum((Y1 - Y0)**2,dim =1)**0.5
+                            reward += torch.sum((Y[zero_to_bsz, idx.data -1] - Y1)**2,dim =1)**0.5
+                        Y0 = Y[zero_to_bsz,idx.data -1].clone()
+                        x = Y[zero_to_bsz, idx.data -1].clone()
+                        R += reward  
+                        logprobs += torch.log(output[zero_to_bsz, idx.data] + TINY)
+                        mask[zero_to_bsz, idx.data] += -np.inf
+                        mask[zero_to_bsz, idx.data-3] += -np.inf
+                        mask[zero_to_bsz, idx.data-2] += -np.inf
                     else:#ends up at right-up point
-            if k == 0: #if this is the first point 
-                Y_ini = Y1.clone()
-            if k > 0: 
-                reward = torch.sum((Y1-Y0)**2,dim =1)**0.5#computing the total distance of all points
-                Y0 = Y1.clone
+                        if k == 0:
+                            Y_ini = Y[zero_to_bsz, idx.data -2]
+                        if k > 0:
+                            reward = torch.sum((Y1 - Y0)**2,dim =1)**0.5
+                            reward += torch.sum((Y[zero_to_bsz, idx.data -2] - Y1)**2,dim =1)**0.5
+                        Y0 = Y[zero_to_bsz,idx.data -2].clone()
+                        x = Y[zero_to_bsz, idx.data -2].clone()
+                        R += reward  
+                        logprobs += torch.log(output[zero_to_bsz, idx.data] + TINY)
+                        mask[zero_to_bsz, idx.data] += -np.inf
+                        mask[zero_to_bsz, idx.data-3] += -np.inf
+                        mask[zero_to_bsz, idx.data-1] += -np.inf
+        R += torch.sum((Y1 - Y_ini)**2 , dim=1 )**0.5
+'''
+above part I designed the rectangle-characterized TSP, that means for every step the agent walk through a corner,
+then he travel through the whole rectangle using zig-zag, finally he ends up at one of the rest corners of 
+the rextangle, so, it equals the agent walk through three points at one step, in practice, I add three points into 
+mask to make them unselectable.
+'''
+# critic baseline phase, use the baseline to compute the actual reward of agent at that time
+        mask = torch.zero(B,len(X)).cuda() # use mask to make some points impossible to choose
+        C = 0
+        baseline = 0
+        Y = X.view(B,size,2)
+        x = Y[:,0,:]
+        h = None
+        c = None
+        context = None
+        Transcontext = None
+        # compute tours for baseline without grad "Cause we want to fix the weights for the critic"
+        wirh torch.nograd():
+            for k in range(len(X)):
+                #same as the above part, with the R => C
+                
+                
+        ###################
+        # Loss and backprop handling 
+        ###################
+        
+        loss = torch.mean((R - C) * logprobs)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        if i % 50 == 0:
+            print("epoch:{}, batch:{}/{}, reward:{}".format(epoch, i, steps, R.mean().item()))
+    time_one_epoch = time.time() - start#recording the work time of one epoch
+    time_tot = time.time() - start_training_time + tot_time_ckpt
+    ###################
+    # Evaluate train model and baseline 
+    # in this phase we just solve random instances with the actor and the critic
+    # compare this soluation if we get any improvment we'll transfer the actor's
+    # weights into the critic
+    ###################
+    Actor.eval()
+    
+    mean_tour_length_actor = 0
+    mean_tour_length_critic = 0
+
+    for step in range(0,B_valLoop):
+        
+        # compute tour for model and baseline
+        X = X_temp.sample_rectangele(len(X))   
+        X = torch.Tensor(X).cuda()
+
+        mask = torch.zeros(B,size).cuda()
+        R = 0
+        reward = 0
+        Y = X.view(B,len(X),2)
+        x = Y[:,0,:]
+        
+        h = None
+        c = None
+        context = None
+        Transcontext = None
+
+        with torch.no_grad():
+            for k in range(len(X)):
+                #same as the above part 
+                
+        R += torch.sum((Y1 - Y_ini)**2 , dim=1 )**0.5
+        # critic baseline
+        mask = torch.zeros(B,size).cuda()
+        C = 0
+        baseline = 0
+        
+        Y = X.view(B,size,2)
+        x = Y[:,0,:]
+        
+        h = None
+        c = None
+        context = None
+        Transcontext = None
+        
+        with torch.no_grad():
+            for k in range(len(X)):
+                #same as the above part
+        C  += torch.sum((Y1 - Y_ini)**2 , dim=1 )**0.5
+        mean_tour_length_actor  += R.mean().item()
+        mean_tour_length_critic += C.mean().item()
+        
+    mean_tour_length_actor  =  mean_tour_length_actor  / B_valLoop
+    mean_tour_length_critic =  mean_tour_length_critic / B_valLoop
+    # evaluate train model and baseline and update if train model is better
+
+    update_baseline = mean_tour_length_actor + TOL < mean_tour_length_critic
+
+    print('Avg Actor {} --- Avg Critic {}'.format(mean_tour_length_actor,mean_tour_length_critic))
+
+    if update_baseline:
+        Critic.load_state_dict(Actor.state_dict())
+        print('My actor is going on the right road Hallelujah :) Updated')
+    ###################
+    # Valdiation train model and baseline on 1k random TSP instances
+    ###################
+    with torch.no_grad():
+        # greedy validation
+        tour_len = 0
+        X = X_val
+        mask = torch.zeros(B_val,len(X)).cuda() # this len(X) represent the validation size of TSP
+        R = 0
+        reward = 0
+
+        Y = X.view(B_val, len(X), 2)    # to the same batch size## this len(X) represent the validation size of TSP
+        x = Y[:,0,:]
+        h = None
+        c = None
+        context = None
+        Transcontext = None
+        for k in range(len(X)):
+            #same as the above part 
+            
+
+
+
+        R  += torch.sum((Y1 - Y_ini)**2 , dim=1 )**0.5
+        tour_len += R.mean().item()
+
+        print('validation tour length:', tour_len)
+
+    # For checkpoint
+    plot_performance_train.append([(epoch+1), mean_tour_length_actor])
+    plot_performance_baseline.append([(epoch+1), mean_tour_length_critic])
+    # compute the optimally gap ==> this is interesting because there is no LKH or other optimal algorithms 
+    # for the problem like this rectangle characterized map
+'''
+    if size==50: gap_train = mean_tour_length_actor/5.692- 1.0
+    elif size==100: gap_train = mean_tour_length_actor/7.765- 1.0
+    else: gap_train = -1.0
+'''
+    # Print and save in txt file
+    mystring_min = 'Epoch: {:d}, epoch time: {:.3f}min, tot time: {:.3f}day, L_actor: {:.3f}, L_critic: {:.3f}, gap_train(%): {:.3f}, update: {}'.format(
+        epoch, time_one_epoch/60, time_tot/86400, mean_tour_length_actor, mean_tour_length_critic, 100 * gap_train, update_baseline)
+
+    print(mystring_min)
+    print('Save Checkpoints')
+
+    # Saving checkpoint
+    checkpoint_dir = os.path.join("checkpoint")
+
+    if not os.path.exists(checkpoint_dir):
+        os.makedirs(checkpoint_dir)
+    
+    torch.save({
+        'epoch': epoch,
+        'time': time_one_epoch,
+        'tot_time': time_tot,
+        'loss': loss.item(),
+        'plot_performance_train': plot_performance_train,
+        'plot_performance_baseline': plot_performance_baseline,
+        'mean_tour_length_val': tour_len,
+        'model_baseline': Critic.state_dict(),
+        'model_train': Actor.state_dict(),
+        'optimizer': optimizer.state_dict(),
+        }, '{}.pkl'.format(checkpoint_dir + "/checkpoint_" + time_stamp + "-n{}".format(size) + "-gpu{}".format(gpu_id)))
+
+
+
+  
+
+
+
+
+                
+            
+                
+        
+                        
