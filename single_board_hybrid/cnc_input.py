@@ -22,7 +22,6 @@ class cnc_input:
         if item_in_shapes['label'] == "gluewidth":
             gluewidth = item_in_shapes['points'][1][1] - item_in_shapes['points'][0][1]
             start_point = (-1 , -1)
-            print("only appear once")
             return start_point, (gluewidth,gluewidth)
         else:
              start_point = item_in_shapes['points'][0]

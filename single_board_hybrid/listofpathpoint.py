@@ -71,20 +71,56 @@ class input_handler:
             
             X_all.extend([[x_lu,y_lu],[x_ru,y_ru],[x_rd,y_rd],[x_ld,y_ld]])
         return X_all
-    def is_odd_is_row(self,point_Lu,point_Ru,point_Rd,point_Ld):
-        if (point_Lu[0] - point_Ru[0]) > (point_Ld[1] - point_Lu[1]):
-            long_side = point_Lu[0] - point_Ru[0]
-            if (int(long_side % self.target_metrices[1]) == 0):
-                return (0,0)
+    def outcorner_getout(self,rectangle_inf):# horizontal line = row
+        feature = []
+        # is odd? is row?
+        for inf in rectangle_inf:
+            rectangle = self.target_metrices[0][int(inf)]
+            index = 4*int(inf)
+            corner = inf - int(inf)
+            if len(rectangle) > len(rectangle[0]): # is column the long side?
+                long_side = len(rectangle)
+                if (int(long_side / self.target_metrices[1]) % 2 == 0): # take even times to spray 
+                    if corner == 0: #is a left up corner, outcorner = left down
+                        feature.append([index + 3,index + 1,index + 2]) #append [outcorner,getout_corners]
+                    elif corner == 0.25: # is a right up , out = right down
+                        feature.append([index + 2,index + 0,index + 3])
+                    elif corner == 0.5: #is a right down, out = right up
+                        feature.append([index + 1,index + 0,index + 3])
+                    else:               # is a left down, out = left up 
+                        feature.append([index + 0,index + 1,index + 2])
+                else:    #take odd time to spray
+                    if corner == 0: #is a left up corner
+                        feature.append([index + 2,index + 1,index + 3]) #append [outcorner,getout_corners]
+                    elif corner == 0.25: # is a right up 
+                        feature.append([index + 3,index + 0,index + 2])
+                    elif corner == 0.5: #is a right down
+                        feature.append([index + 0,index + 1,index + 3])
+                    else:               # is a left down
+                        feature.append([index + 1,index + 0,index + 2])
+                        
             else:
-                return (1,0)
-            
-        else:
-            long_side = point_Ld[1] - point_Lu[1]
-            if (int(long_side % self.target_metrices[1]) == 0):
-                return (0,1)
-            else:
-                return (1,1)            
+                long_side = len(rectangle[0]) #row = long side
+                if (int(long_side / self.target_metrices[1]) % 2 == 0): # take even times to spray   
+                    if corner == 0: #is a left up corner
+                        feature.append([index + 1,index + 2,index + 3]) #append [outcorner,getout_corners]
+                    elif corner == 0.25: # is a right up 
+                        feature.append([index + 0,index + 2,index + 3])
+                    elif corner == 0.5: #is a right down
+                        feature.append([index + 3,index + 0,index + 1])
+                    else:               # is a left down
+                        feature.append([index + 2,index + 0,index + 1])  
+                else:
+                    if corner == 0: #is a left up corner
+                        feature.append([index + 2,index + 1,index + 3]) #append [outcorner,getout_corners]
+                    elif corner == 0.25: # is a right up 
+                        feature.append([index + 3,index + 0,index + 2])
+                    elif corner == 0.5: #is a right down
+                        feature.append([index + 0,index + 1,index + 3])
+                    else:               # is a left down
+                        feature.append([index + 1,index + 0,index + 2])          
+        return feature    
+          
             
         
 '''
