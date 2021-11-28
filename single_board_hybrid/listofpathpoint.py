@@ -72,53 +72,55 @@ class input_handler:
             X_all.extend([[x_lu,y_lu],[x_ru,y_ru],[x_rd,y_rd],[x_ld,y_ld]])
         return X_all
     def outcorner_getout(self,rectangle_inf):# horizontal line = row
-        feature = []
+        import torch
+        feature = torch.Tensor([])
         # is odd? is row?
         for inf in rectangle_inf:
-            rectangle = self.target_metrices[0][int(inf)]
+            rectangle = self.target_metrices[0][int(inf)][0]
             index = 4*int(inf)
             corner = inf - int(inf)
             if len(rectangle) > len(rectangle[0]): # is column the long side?
                 long_side = len(rectangle)
                 if (int(long_side / self.target_metrices[1]) % 2 == 0): # take even times to spray 
                     if corner == 0: #is a left up corner, outcorner = left down
-                        feature.append([index + 3,index + 1,index + 2]) #append [outcorner,getout_corners]
+                        feature = torch.cat((feature,torch.Tensor([index + 3,index + 1,index + 2])),0) #append [outcorner,getout_corners]
                     elif corner == 0.25: # is a right up , out = right down
-                        feature.append([index + 2,index + 0,index + 3])
+                        feature = torch.cat((feature,torch.Tensor([index + 2,index + 0,index + 3])),0)
                     elif corner == 0.5: #is a right down, out = right up
-                        feature.append([index + 1,index + 0,index + 3])
+                        feature = torch.cat((feature,torch.Tensor([index + 1,index + 0,index + 3])),0)
                     else:               # is a left down, out = left up 
-                        feature.append([index + 0,index + 1,index + 2])
+                        feature = torch.cat((feature,torch.Tensor([index + 1,index + 0,index + 2])),0)
                 else:    #take odd time to spray
                     if corner == 0: #is a left up corner
-                        feature.append([index + 2,index + 1,index + 3]) #append [outcorner,getout_corners]
+                        feature = torch.cat((feature,torch.Tensor([index + 2,index + 1,index + 3])),0) #append [outcorner,getout_corners]
                     elif corner == 0.25: # is a right up 
-                        feature.append([index + 3,index + 0,index + 2])
+                        feature = torch.cat((feature,torch.Tensor([index + 3,index + 0,index + 2])),0)
                     elif corner == 0.5: #is a right down
-                        feature.append([index + 0,index + 1,index + 3])
+                        feature = torch.cat((feature,torch.Tensor([index + 0,index + 1,index + 3])),0)
                     else:               # is a left down
-                        feature.append([index + 1,index + 0,index + 2])
+                        feature = torch.cat((feature,torch.Tensor([index + 1,index + 0,index + 2])),0)
                         
             else:
                 long_side = len(rectangle[0]) #row = long side
                 if (int(long_side / self.target_metrices[1]) % 2 == 0): # take even times to spray   
                     if corner == 0: #is a left up corner
-                        feature.append([index + 1,index + 2,index + 3]) #append [outcorner,getout_corners]
+                        feature = torch.cat((feature,torch.Tensor([index + 1,index + 2,index + 3])),0)#append [outcorner,getout_corners]
                     elif corner == 0.25: # is a right up 
-                        feature.append([index + 0,index + 2,index + 3])
+                        feature = torch.cat((feature,torch.Tensor([index + 0,index + 2,index + 3])),0)
                     elif corner == 0.5: #is a right down
-                        feature.append([index + 3,index + 0,index + 1])
+                        feature = torch.cat((feature,torch.Tensor([index + 3,index + 0,index + 1])),0)
                     else:               # is a left down
-                        feature.append([index + 2,index + 0,index + 1])  
+                        feature = torch.cat((feature,torch.Tensor([index + 2,index + 0,index + 1])),0) 
                 else:
                     if corner == 0: #is a left up corner
-                        feature.append([index + 2,index + 1,index + 3]) #append [outcorner,getout_corners]
+                        feature = torch.cat((feature,torch.Tensor([index + 2,index + 1,index + 3])),0) #append [outcorner,getout_corners]
                     elif corner == 0.25: # is a right up 
-                        feature.append([index + 3,index + 0,index + 2])
+                        feature = torch.cat((feature,torch.Tensor([index + 3,index + 0,index + 2])),0)
                     elif corner == 0.5: #is a right down
-                        feature.append([index + 0,index + 1,index + 3])
+                        feature = torch.cat((feature,torch.Tensor([index + 0,index + 1,index + 3])),0)
                     else:               # is a left down
-                        feature.append([index + 1,index + 0,index + 2])          
+                        feature = torch.cat((feature,torch.Tensor([index + 1,index + 0,index + 2])),0)     
+        feature = torch.reshape(feature,(256,3))                
         return feature    
           
             
