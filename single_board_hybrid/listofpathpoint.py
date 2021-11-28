@@ -71,7 +71,7 @@ class input_handler:
             
             X_all.extend([[x_lu,y_lu],[x_ru,y_ru],[x_rd,y_rd],[x_ld,y_ld]])
         return X_all
-    def outcorner_getout(self,rectangle_inf):# horizontal line = row
+    def outcorner_getout(self,rectangle_inf,B):# horizontal line = row
         import torch
         feature = torch.Tensor([])
         # is odd? is row?
@@ -120,7 +120,7 @@ class input_handler:
                         feature = torch.cat((feature,torch.Tensor([index + 0,index + 1,index + 3])),0)
                     else:               # is a left down
                         feature = torch.cat((feature,torch.Tensor([index + 1,index + 0,index + 2])),0)     
-        feature = torch.reshape(feature,(256,3))                
+        feature = torch.reshape(feature,(B,3))                
         return feature    
           
             
