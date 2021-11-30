@@ -1,7 +1,76 @@
 import cnc_input
+import img_index
 class input_handler:
     def __init__(self, jsonfilename):
         self.target_metrices = cnc_input.main(['-i', jsonfilename])
+        self.X_all = []
+    def zig_zag_path(self,path_corners_index): #path corners index = [[start_corner_index, end_corner_index], ....] = array 2d (path_lengh,2)
+        path_gazebo = []
+        path_corners = []
+        self.X_all = input_handler.every_point(self)
+        for index in path_corners_index:
+            path_corners.append([self.X_all[index[0]],self.X_all[index[1]]])
+        print(path_corners)
+        for index in path_corners_index: #find the longer side => zig-zag to end point
+            corner_num = index[0] % 4
+            if (abs(self.X_all[index[0]][0] - self.X_all[index[1]][0])) > (abs(self.X_all[index[0]][1] - self.X_all[index[1]][1])): #if longer side = horizon side = row side
+                if corner_num == 0 :
+                    y_way = range(0,int(abs(self.X_all[index[0]][1] - self.X_all[index[1]][1])),int(self.target_metrices[1]))
+                    x_way_left = range(0,len(self.target_metrices[0][int(index[0] / 4)][0][0]),int(self.target_metrices[1]))
+                    x_way_right = range(len(self.target_metrices[0][int(index[0] / 4)][0][0]),0,-int(self.target_metrices[1]))
+                elif corner_num == 3:  # start = left down ,out = left up
+                    y_way = range(int(abs(self.X_all[index[0]][1] - self.X_all[index[1]][1])),0, -int(self.target_metrices[1]))
+                    x_way_left = range(0,len(self.target_metrices[0][int(index[0] / 4)][0][0]),int(self.target_metrices[1]))
+                    x_way_right = range(len(self.target_metrices[0][int(index[0] / 4)][0][0]),0,-int(self.target_metrices[1]))
+                elif corner_num == 1: #start = right up, out = right down
+                    y_way = range(0,int(abs(self.X_all[index[0]][1] - self.X_all[index[1]][1])),int(self.target_metrices[1]))
+                    x_way_left = range(len(self.target_metrices[0][int(index[0] / 4)][0][0]),0,-int(self.target_metrices[1]))
+                    x_way_right = range(0,len(self.target_metrices[0][int(index[0] / 4)][0][0]),int(self.target_metrices[1]))
+                elif corner_num == 2: #start = right down, out = right up
+                    y_way = range(int(abs(self.X_all[index[0]][1] - self.X_all[index[1]][1])),0, -int(self.target_metrices[1]))
+                    x_way_left = range(len(self.target_metrices[0][int(index[0] / 4)][0][0]),0,-int(self.target_metrices[1]))
+                    x_way_right = range(0,len(self.target_metrices[0][int(index[0] / 4)][0][0]),int(self.target_metrices[1]))
+                # x_way_left = when the agent is on the left side , then it should move to the right side
+                way_2 = x_way_left
+                way_1 = y_way
+                for i in way_1:
+                    for j in way_2:
+                        path_gazebo.extend([(self.X_all[index[0]]) + [j,i]])
+                    if (i % 2) == 0:
+                        way_2 =  x_way_right
+                    else:
+                        way_2 = x_way_left
+            else:                                       #long side = straight side = column
+                if corner_num == 0 : #lu -> ?
+                    y_way = range(0,int(abs(self.X_all[index[0]][0] - self.X_all[index[1]][0])),int(self.target_metrices[1]))
+                    x_way_left = range(0,len(self.target_metrices[0][int(index[0] / 4)][0]),int(self.target_metrices[1]))
+                    x_way_right = range(len(self.target_metrices[0][int(index[0] / 4)][0]),0,-int(self.target_metrices[1]))
+                elif corner_num == 3:  # start = left down ,out = left up
+                    y_way = range(int(abs(self.X_all[index[0]][1] - self.X_all[index[1]][1])),0, -int(self.target_metrices[1]))
+                    x_way_left = range(0,len(self.target_metrices[0][int(index[0] / 4)][0]),int(self.target_metrices[1]))
+                    x_way_right = range(len(self.target_metrices[0][int(index[0] / 4)][0]),0,-int(self.target_metrices[1]))
+                elif corner_num == 1: #start = right up, out = right down
+                    y_way = range(0,int(abs(self.X_all[index[0]][1] - self.X_all[index[1]][1])),int(self.target_metrices[1]))
+                    x_way_left = range(len(self.target_metrices[0][int(index[0] / 4)][0]),0,-int(self.target_metrices[1]))
+                    x_way_right = range(0,len(self.target_metrices[0][int(index[0] / 4)][0]),int(self.target_metrices[1]))
+                elif corner_num == 2: #start = right down, out = right up
+                    y_way = range(int(abs(self.X_all[index[0]][1] - self.X_all[index[1]][1])),0, -int(self.target_metrices[1]))
+                    x_way_left = range(len(self.target_metrices[0][int(index[0] / 4)][0]),0,-int(self.target_metrices[1]))
+                    x_way_right = range(0,len(self.target_metrices[0][int(index[0] / 4)][0]),int(self.target_metrices[1]))
+                # x_way_left = when the agent is on the left side , then it should move to the right side
+                way_2 = x_way_left
+                way_1 = y_way
+                for i in way_1:
+                    for j in way_2:
+                        path_gazebo.extend([(self.X_all[index[0]]) + [j,i]])
+                    if (i % 2) == 0:
+                        way_2 = x_way_right
+                    else:
+                        way_2 = x_way_left
+        return path_gazebo
+
+
+
     def A_walkonchip(self):
         allsteps = []
         for matrix in self.target_metrices:
@@ -57,7 +126,6 @@ class input_handler:
             X_all.append([x,y,len(rectangle),len(rectangle[0]),odd_even])
         return X_all
     def every_point(self):
-        X_all = []
         for matrix in self.target_metrices[0]:
             rectangle = matrix[0]
             x_lu = matrix[1]
@@ -69,8 +137,8 @@ class input_handler:
             x_rd = x_ru 
             y_rd = y_ld 
             
-            X_all.extend([[x_lu,y_lu],[x_ru,y_ru],[x_rd,y_rd],[x_ld,y_ld]])
-        return X_all
+            self.X_all.extend([[x_lu,y_lu],[x_ru,y_ru],[x_rd,y_rd],[x_ld,y_ld]])
+        return self.X_all
     def outcorner_getout(self,rectangle_inf,B):# horizontal line = row
         import torch
         feature = torch.Tensor([])
