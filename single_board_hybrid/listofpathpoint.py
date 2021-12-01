@@ -10,7 +10,6 @@ class input_handler:
         self.X_all = input_handler.every_point(self)
         for index in path_corners_index:
             path_corners.append([self.X_all[index[0]],self.X_all[index[1]]])
-        print(path_corners)
         for index in path_corners_index: #find the longer side => zig-zag to end point
             corner_num = index[0] % 4
             if (abs(self.X_all[index[0]][0] - self.X_all[index[1]][0])) > (abs(self.X_all[index[0]][1] - self.X_all[index[1]][1])): #if longer side = horizon side = row side
@@ -35,34 +34,34 @@ class input_handler:
                 way_1 = y_way
                 for i in way_1:
                     for j in way_2:
-                        path_gazebo.extend([(self.X_all[index[0]]) + [j,i]])
+                        path_gazebo.append([self.X_all[index[0]][0]+j,self.X_all[index[0]][1]+i])
                     if (i % 2) == 0:
                         way_2 =  x_way_right
                     else:
                         way_2 = x_way_left
             else:                                       #long side = straight side = column
                 if corner_num == 0 : #lu -> ?
-                    y_way = range(0,int(abs(self.X_all[index[0]][0] - self.X_all[index[1]][0])),int(self.target_metrices[1]))
-                    x_way_left = range(0,len(self.target_metrices[0][int(index[0] / 4)][0]),int(self.target_metrices[1]))
-                    x_way_right = range(len(self.target_metrices[0][int(index[0] / 4)][0]),0,-int(self.target_metrices[1]))
+                    y_way = range(0,len(self.target_metrices[0][int(index[0] / 4)][0]),int(self.target_metrices[1]))
+                    x_way_left = range(0,int(abs(self.X_all[index[0]][0] - self.X_all[index[1]][0])),int(self.target_metrices[1]))
+                    x_way_right = range(int(abs(self.X_all[index[0]][0] - self.X_all[index[1]][0])),0,-int(self.target_metrices[1]))
                 elif corner_num == 3:  # start = left down ,out = left up
-                    y_way = range(int(abs(self.X_all[index[0]][1] - self.X_all[index[1]][1])),0, -int(self.target_metrices[1]))
-                    x_way_left = range(0,len(self.target_metrices[0][int(index[0] / 4)][0]),int(self.target_metrices[1]))
-                    x_way_right = range(len(self.target_metrices[0][int(index[0] / 4)][0]),0,-int(self.target_metrices[1]))
+                    y_way = range(len(self.target_metrices[0][int(index[0] / 4)][0]),0, -int(self.target_metrices[1]))
+                    x_way_left = range(0,int(abs(self.X_all[index[0]][1] - self.X_all[index[1]][1])),int(self.target_metrices[1]))
+                    x_way_right = range(int(abs(self.X_all[index[0]][1] - self.X_all[index[1]][1])),0,-int(self.target_metrices[1]))
                 elif corner_num == 1: #start = right up, out = right down
-                    y_way = range(0,int(abs(self.X_all[index[0]][1] - self.X_all[index[1]][1])),int(self.target_metrices[1]))
-                    x_way_left = range(len(self.target_metrices[0][int(index[0] / 4)][0]),0,-int(self.target_metrices[1]))
-                    x_way_right = range(0,len(self.target_metrices[0][int(index[0] / 4)][0]),int(self.target_metrices[1]))
+                    y_way = range(0,len(self.target_metrices[0][int(index[0] / 4)][0]),int(self.target_metrices[1]))
+                    x_way_left = range(int(abs(self.X_all[index[0]][1] - self.X_all[index[1]][1])),0,-int(self.target_metrices[1]))
+                    x_way_right = range(0,int(abs(self.X_all[index[0]][1] - self.X_all[index[1]][1])),int(self.target_metrices[1]))
                 elif corner_num == 2: #start = right down, out = right up
-                    y_way = range(int(abs(self.X_all[index[0]][1] - self.X_all[index[1]][1])),0, -int(self.target_metrices[1]))
-                    x_way_left = range(len(self.target_metrices[0][int(index[0] / 4)][0]),0,-int(self.target_metrices[1]))
-                    x_way_right = range(0,len(self.target_metrices[0][int(index[0] / 4)][0]),int(self.target_metrices[1]))
+                    y_way = range(len(self.target_metrices[0][int(index[0] / 4)][0]),0, -int(self.target_metrices[1]))
+                    x_way_left = range(int(abs(self.X_all[index[0]][1] - self.X_all[index[1]][1])),0,-int(self.target_metrices[1]))
+                    x_way_right = range(0,int(abs(self.X_all[index[0]][1] - self.X_all[index[1]][1])),int(self.target_metrices[1]))
                 # x_way_left = when the agent is on the left side , then it should move to the right side
                 way_2 = x_way_left
                 way_1 = y_way
                 for i in way_1:
                     for j in way_2:
-                        path_gazebo.extend([(self.X_all[index[0]]) + [j,i]])
+                        path_gazebo.append([self.X_all[index[0]][0]+j,self.X_all[index[0]][1]+i])
                     if (i % 2) == 0:
                         way_2 = x_way_right
                     else:
@@ -119,13 +118,14 @@ class input_handler:
                 long_side = len(rectangle)
             else:
                 long_side = len(rectangle[0])   
-            if(int(long_side / self.targetmatrices[1] % 2 == 0)):
+            if(int(long_side / self.targetmatrices[1] % 2 == s0)):
                 odd_even = 0
             else:
                 odd_even = 1
             X_all.append([x,y,len(rectangle),len(rectangle[0]),odd_even])
         return X_all
     def every_point(self):
+        self.X_all = []
         for matrix in self.target_metrices[0]:
             rectangle = matrix[0]
             x_lu = matrix[1]
