@@ -145,7 +145,7 @@ if __name__ == '__main__':
     t = threading.Thread(target=pose_listener)
     t.start()
     # Remember to change the path value
-    cfg = YamlParser('pathpoints/path_points 800.yaml')
+    cfg = YamlParser('pathpoints/path_points 200.yaml')
     # print(cfg.path)
     path = cfg.path  # get a list of x y tuples
     go_for_a_walk(path, (x_publisher, y_publisher, z_publisher))
