@@ -165,14 +165,14 @@ class input_handler:
             if len(rectangle) > len(rectangle[0]): # is column the long side?
                 long_side = len(rectangle)
                 if (int(long_side / self.target_metrices[1]) % 2 == 0): # take even times to spray 
-                    if corner == 0: #is a left up corner, outcorner = left down
-                        feature = torch.cat((feature,torch.Tensor([index + 3,index + 1,index + 2])),0) #append [outcorner,getout_corners]
-                    elif corner == 0.25: # is a right up , out = right down
-                        feature = torch.cat((feature,torch.Tensor([index + 2,index + 0,index + 3])),0)
-                    elif corner == 0.5: #is a right down, out = right up
-                        feature = torch.cat((feature,torch.Tensor([index + 1,index + 0,index + 3])),0)
-                    else:               # is a left down, out = left up 
-                        feature = torch.cat((feature,torch.Tensor([index + 1,index + 0,index + 2])),0)
+                    if corner == 0: #is a left up corner, outcorner = right up
+                        feature = torch.cat((feature,torch.Tensor([index + 1,index + 2,index + 3])),0) #append [outcorner,getout_corners]
+                    elif corner == 0.25: # is a right up , out = left up
+                        feature = torch.cat((feature,torch.Tensor([index + 0,index + 2,index + 3])),0)
+                    elif corner == 0.5: #is a right down, out = left down
+                        feature = torch.cat((feature,torch.Tensor([index + 3,index + 0,index + 1])),0)
+                    else:               # is a left down, out = right down
+                        feature = torch.cat((feature,torch.Tensor([index + 2,index + 0,index + 1])),0)
                 else:    #take odd time to spray
                     if corner == 0: #is a left up corner
                         feature = torch.cat((feature,torch.Tensor([index + 2,index + 1,index + 3])),0) #append [outcorner,getout_corners]
@@ -187,13 +187,13 @@ class input_handler:
                 long_side = len(rectangle[0]) #row = long side
                 if (int(long_side / self.target_metrices[1]) % 2 == 0): # take even times to spray   
                     if corner == 0: #is a left up corner
-                        feature = torch.cat((feature,torch.Tensor([index + 1,index + 2,index + 3])),0)#append [outcorner,getout_corners]
+                        feature = torch.cat((feature,torch.Tensor([index + 3,index + 1,index + 2])),0)#append [outcorner,getout_corners]
                     elif corner == 0.25: # is a right up 
-                        feature = torch.cat((feature,torch.Tensor([index + 0,index + 2,index + 3])),0)
+                        feature = torch.cat((feature,torch.Tensor([index + 2,index + 0,index + 3])),0)
                     elif corner == 0.5: #is a right down
-                        feature = torch.cat((feature,torch.Tensor([index + 3,index + 0,index + 1])),0)
+                        feature = torch.cat((feature,torch.Tensor([index + 1,index + 0,index + 3])),0)
                     else:               # is a left down
-                        feature = torch.cat((feature,torch.Tensor([index + 2,index + 0,index + 1])),0) 
+                        feature = torch.cat((feature,torch.Tensor([index + 0,index + 1,index + 2])),0) 
                 else:
                     if corner == 0: #is a left up corner
                         feature = torch.cat((feature,torch.Tensor([index + 2,index + 1,index + 3])),0) #append [outcorner,getout_corners]
