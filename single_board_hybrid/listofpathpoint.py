@@ -14,7 +14,7 @@ class input_handler:
             path_corners.extend([self.X_all[index[0]],self.X_all[index[1]]])
 
         data = np.array(path_corners)
-        plt.plot(data[:, 0], data[:, 1])
+        plt.plot(data[:, 0], data[:, 1],color = 'black')
         data_1 = np.array(self.X_all)
         data_1 = np.reshape(data_1,(34,4,2))
         for rec in data_1:
@@ -193,7 +193,7 @@ class input_handler:
                     elif corner == 0.5: #is a right down
                         feature = torch.cat((feature,torch.Tensor([index + 1,index + 0,index + 3])),0)
                     else:               # is a left down
-                        feature = torch.cat((feature,torch.Tensor([index + 0,index + 1,index + 2])),0) 
+                        feature = torch.cat((feature,torch.Tensor([index + 0,index + 1,index + 2])),0)
                 else:
                     if corner == 0: #is a left up corner
                         feature = torch.cat((feature,torch.Tensor([index + 2,index + 1,index + 3])),0) #append [outcorner,getout_corners]
