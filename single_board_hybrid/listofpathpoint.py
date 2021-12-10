@@ -2,6 +2,7 @@ import cnc_input
 import img_index
 import numpy as np
 import matplotlib.pyplot as plt
+import torch
 class input_handler:
     def __init__(self, jsonfilename):
         self.target_metrices = cnc_input.main(['-i', jsonfilename])
@@ -154,8 +155,11 @@ class input_handler:
             
             self.X_all.extend([[x_lu,y_lu],[x_ru,y_ru],[x_rd,y_rd],[x_ld,y_ld]])
         return self.X_all
+    # using barrier_avoid to let the agent take a movement between decisions
+    # the barrier points should be different from normal tsp points, they should be loaded in another way, and be considered in another way 
+    def barrier_avoid(self, recent_points):
+        
     def outcorner_getout(self,rectangle_inf,B):# horizontal line = row
-        import torch
         feature = torch.Tensor([])
         # is odd? is row?
         for inf in rectangle_inf:
