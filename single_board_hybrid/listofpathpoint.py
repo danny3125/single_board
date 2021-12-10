@@ -133,7 +133,7 @@ class input_handler:
                 long_side = len(rectangle)
             else:
                 long_side = len(rectangle[0])   
-            if(int(long_side / self.targetmatrices[1] % 2 == s0)):
+            if(int(long_side / self.targetmatrices[1] % 2 == 0)):
                 odd_even = 0
             else:
                 odd_even = 1
@@ -154,6 +154,17 @@ class input_handler:
             
             self.X_all.extend([[x_lu,y_lu],[x_ru,y_ru],[x_rd,y_rd],[x_ld,y_ld]])
         return self.X_all
+    def barrier_detect(self, slope_barrier, euler_barrier, slope, euler):# size of all inputs : B x [value]
+        slope_barrier = slope_barrier.to_list()
+        euler_barrier = slope_barrier.to_list()
+        slope = slope.to_list()
+        euler = euler.to_list()
+        for batch_num in range(len(slope)):
+            temp = []
+            for i in range(0,len(slope_barrier[0]),4):
+                temp = slope_barrier[batch_num][i:i+4] # load four points of an object 
+                temp.sort() # small -> big
+                if slope[batch_num] > temp[]
     def outcorner_getout(self,rectangle_inf,B):# horizontal line = row
         import torch
         feature = torch.Tensor([])
@@ -205,7 +216,6 @@ class input_handler:
                         feature = torch.cat((feature,torch.Tensor([index + 1,index + 0,index + 2])),0)     
         feature = torch.reshape(feature,(B,3))                
         return feature    
-          
             
         
 '''
