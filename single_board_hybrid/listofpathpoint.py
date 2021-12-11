@@ -86,14 +86,14 @@ class input_handler:
 
 
 
-    def A_walkonchip(self):
+    def A_walkonchip(self): # unused
         allsteps = []
         for matrix in self.target_metrices:
             allsteps.extend((input_handler.sides_in_matrix(matrix[0], matrix[1], matrix[2])))
         return allsteps
 
 
-    def sides_in_matrix(matrix, startpoint_x, startpoint_y):
+    def sides_in_matrix(matrix, startpoint_x, startpoint_y): #unused
         sides_of_matrix = ((startpoint_x, startpoint_y), (startpoint_x + len(matrix), startpoint_y) \
                                , (startpoint_x, startpoint_y + len(matrix[0]),
                                   (startpoint_x + len(matrix), startpoint_y + len(matrix[0]))))
@@ -105,7 +105,7 @@ class input_handler:
         return sides_of_matrix
 
 
-    def package_points(self):
+    def package_points(self): # unused
         X_all = []
         print(self.target_metrices[1])
         for matrix in self.target_metrices[0]:
@@ -124,7 +124,7 @@ class input_handler:
                            [x + len(rectangle), y], [x, y + len(rectangle[0])]]
             X_all.append(corners)
         return X_all
-    def point_scale(self):
+    def point_scale(self): # unused
         X_all = []
         for matrix in self.target_metrices[0]:
             x = matrix[1]
@@ -157,7 +157,7 @@ class input_handler:
         return self.X_all
     # using barrier_avoid to let the agent take a movement between decisions
     # the barrier points should be different from normal tsp points, they should be loaded in another way, and be considered in another way 
-    def barrier_avoid(self, recent_points):
+    #def barrier_avoid(self, recent_points):
         
     def outcorner_getout(self,rectangle_inf,B):# horizontal line = row
         feature = torch.Tensor([])
