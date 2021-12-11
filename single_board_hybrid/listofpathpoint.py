@@ -167,7 +167,7 @@ class input_handler:
             index = 4*int(inf)
             corner = inf - int(inf)
             if len(rectangle) > len(rectangle[0]): # is column the long side?
-                long_side = len(rectangle)
+                long_side = len(rectangle[0])
                 if (int(long_side / self.target_metrices[1]) % 2 == 0): # take even times to spray 
                     if corner == 0: #is a left up corner, outcorner = right up
                         feature = torch.cat((feature,torch.Tensor([index + 1,index + 2,index + 3])),0) #append [outcorner,getout_corners]
@@ -188,7 +188,7 @@ class input_handler:
                         feature = torch.cat((feature,torch.Tensor([index + 1,index + 0,index + 2])),0)
                         
             else:
-                long_side = len(rectangle[0]) #row = long side
+                long_side = len(rectangle) #row = long side
                 if (int(long_side / self.target_metrices[1]) % 2 == 0): # take even times to spray   
                     if corner == 0: #is a left up corner
                         feature = torch.cat((feature,torch.Tensor([index + 3,index + 1,index + 2])),0)#append [outcorner,getout_corners]
