@@ -2,14 +2,24 @@ import cnc_input
 import img_index
 import numpy as np
 import matplotlib.pyplot as plt
+import math
+import torch
 class input_handler:
     def __init__(self, jsonfilename):
         self.target_metrices = cnc_input.main(['-i', jsonfilename])
         self.X_all = []
+    def angle(self,v1):
+        dx1 = v1[0]
+        dy1 = v1[1]
+        angle1 = math.atan2(dy1, dx1)
+        angle1 = int(angle1 * 180 / math.pi)
+        if angle1 < 0:
+            angle1 = 360 + angle1
+        return angle1
     def zig_zag_path(self,path_corners_index): #path corners index = [[start_corner_index, end_corner_index], ....] = array 2d (path_lengh,2)
         path_gazebo = []
         path_corners = []
-        self.X_all = input_handler.every_point(self)
+        self.X_all = self.every_point()
         for index in path_corners_index:
             path_corners.extend([self.X_all[index[0]],self.X_all[index[1]]])
 
@@ -154,19 +164,32 @@ class input_handler:
             
             self.X_all.extend([[x_lu,y_lu],[x_ru,y_ru],[x_rd,y_rd],[x_ld,y_ld]])
         return self.X_all
-    def barrier_detect(self, slope_barrier, euler_barrier, slope, euler):# size of all inputs : B x [value]
-        slope_barrier = slope_barrier.to_list()
-        euler_barrier = slope_barrier.to_list()
-        slope = slope.to_list()
-        euler = euler.to_list()
-        for batch_num in range(len(slope)):
-            temp = []
-            for i in range(0,len(slope_barrier[0]),4):
-                temp = slope_barrier[batch_num][i:i+4] # load four points of an object 
+    def barrier_detect(self, vector_barrier, euler_barrier, vector, euler):# size of all inputs : B x [value]
+        rewards = []
+        vector = vector.tolist()
+        euler = euler.tolist()
+        for batch_num in range(len(euler)):
+            for i in range(0,len(vector_barrier[0]),4):
+                temp_vector = vector_barrier[batch_num][i:i+4] # load four points of an object
+                print(len(vector_barrier[0]))
+                temp_euler = euler_barrier[batch_num][i:i+4]
+                temp = []
+                for vec in temp_vector:
+                    temp.append(self.angle(vec))
                 temp.sort() # small -> big
-                if slope[batch_num] > temp[]
+                temp_euler.sort()
+                next_point_vec = self.angle(vector[batch_num])
+                if next_point_vec >= temp[0] and next_point_vec <= temp[-1]:
+                    if euler[batch_num] > temp_euler[0]:
+                        # collision detected
+                        rewards.append(30)
+                    else:
+                        rewards.append(0)
+                else:
+                    rewards.append(0)
+        rewards = torch.tensor(rewards)
+        return rewards
     def outcorner_getout(self,rectangle_inf,B):# horizontal line = row
-        import torch
         feature = torch.Tensor([])
         # is odd? is row?
         for inf in rectangle_inf:
@@ -174,7 +197,7 @@ class input_handler:
             index = 4*int(inf)
             corner = inf - int(inf)
             if len(rectangle) > len(rectangle[0]): # is column the long side?
-                long_side = len(rectangle)
+                long_side = len(rectangle[0])
                 if (int(long_side / self.target_metrices[1]) % 2 == 0): # take even times to spray 
                     if corner == 0: #is a left up corner, outcorner = left down
                         feature = torch.cat((feature,torch.Tensor([index + 3,index + 1,index + 2])),0) #append [outcorner,getout_corners]
@@ -195,7 +218,7 @@ class input_handler:
                         feature = torch.cat((feature,torch.Tensor([index + 1,index + 0,index + 2])),0)
                         
             else:
-                long_side = len(rectangle[0]) #row = long side
+                long_side = len(rectangle) #row = long side
                 if (int(long_side / self.target_metrices[1]) % 2 == 0): # take even times to spray   
                     if corner == 0: #is a left up corner
                         feature = torch.cat((feature,torch.Tensor([index + 1,index + 2,index + 3])),0)#append [outcorner,getout_corners]
