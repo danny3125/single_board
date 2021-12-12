@@ -1,5 +1,5 @@
 import cnc_input
-import img_index
+#import img_index
 import numpy as np
 import matplotlib.pyplot as plt
 import math
@@ -16,7 +16,7 @@ class input_handler:
         if angle1 < 0:
             angle1 = 360 + angle1
         return angle1
-    def zig_zag_path(self,path_corners_index): #path corners index = [[start_corner_index, end_corner_index], ....] = array 2d (path_lengh,2)
+    def zig_zag_path(self,path_corners_index,barriers): #path corners index = [[start_corner_index, end_corner_index], ....] = array 2d (path_lengh,2)
         path_gazebo = []
         path_corners = []
         self.X_all = self.every_point()
@@ -26,10 +26,15 @@ class input_handler:
         data = np.array(path_corners)
         plt.plot(data[:, 0], data[:, 1])
         data_1 = np.array(self.X_all)
-        data_1 = np.reshape(data_1,(34,4,2))
+        data_1 = np.reshape(data_1,(int(len(self.X_all)/4),4,2))
         for rec in data_1:
             rec = np.concatenate((rec,[rec[0]]),axis= 0)
             plt.plot(rec[:, 0], rec[:, 1],color = 'red')
+        data_barrier = np.array(barriers)
+        data_barrier = np.reshape(data_barrier,(int(len(self.X_all)/4),4,2))
+        for rec in data_barrier:
+            rec = np.concatenate((rec,[rec[0]]),axis= 0)
+            plt.plot(rec[:, 0], rec[:, 1],color = 'green')
         plt.show()
         for index in path_corners_index: #find the longer side => zig-zag to end point
             corner_num = index[0] % 4
@@ -164,15 +169,18 @@ class input_handler:
             
             self.X_all.extend([[x_lu,y_lu],[x_ru,y_ru],[x_rd,y_rd],[x_ld,y_ld]])
         return self.X_all
-    def barrier_detect(self, vector_barrier, euler_barrier, vector, euler):# size of all inputs : B x [value]
-        rewards = []
+    def barrier_detect(self, vector_barrier, euler_barrier, vector, euler):# size of all inputs : num_rec_corners x B x [value]
+        rewards = [0]*len(vector_barrier[0])
         vector = vector.tolist()
         euler = euler.tolist()
-        for batch_num in range(len(euler)):
-            for i in range(0,len(vector_barrier[0]),4):
-                temp_vector = vector_barrier[batch_num][i:i+4] # load four points of an object
-                print(len(vector_barrier[0]))
-                temp_euler = euler_barrier[batch_num][i:i+4]
+        for batch_num in range(len(vector_barrier[0])):
+            single_map_barrier = vector_barrier[:,batch_num]
+            single_map_barrier = single_map_barrier.tolist()
+            single_map_euler = euler_barrier[:,batch_num]
+            single_map_euler = single_map_euler.tolist()
+            for i in range(0,len(vector_barrier),4):
+                temp_vector = single_map_barrier[i:i+4]
+                temp_euler = single_map_euler[i:i+4] # load four points of an object
                 temp = []
                 for vec in temp_vector:
                     temp.append(self.angle(vec))
@@ -182,11 +190,11 @@ class input_handler:
                 if next_point_vec >= temp[0] and next_point_vec <= temp[-1]:
                     if euler[batch_num] > temp_euler[0]:
                         # collision detected
-                        rewards.append(30)
+                        rewards[batch_num]+=30
                     else:
-                        rewards.append(0)
+                        pass
                 else:
-                    rewards.append(0)
+                    pass
         rewards = torch.tensor(rewards)
         return rewards
     def outcorner_getout(self,rectangle_inf,B):# horizontal line = row
