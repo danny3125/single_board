@@ -8,6 +8,7 @@ class input_handler:
     def __init__(self, jsonfilename):
         self.target_metrices = cnc_input.main(['-i', jsonfilename])
         self.X_all = []
+        self.barrier_path = []
     def angle(self,v1):
         dx1 = v1[0]
         dy1 = v1[1]
@@ -16,13 +17,16 @@ class input_handler:
         if angle1 < 0:
             angle1 = 360 + angle1
         return angle1
+        
     def zig_zag_path(self,path_corners_index,barriers): #path corners index = [[start_corner_index, end_corner_index], ....] = array 2d (path_lengh,2)
         path_gazebo = []
         path_corners = []
         self.X_all = self.every_point()
         for index in path_corners_index:
-            path_corners.extend([self.X_all[index[0]],self.X_all[index[1]]])
-
+            if len(index) == 2:
+                path_corners.extend([self.X_all[index[0]],self.X_all[index[1]]])
+            else:
+                path_corners.extend([barriers[index[0]],barriers[index[1]],self.X_all[index[0]],self.X_all[index[1]]])
         data = np.array(path_corners)
         plt.plot(data[:, 0], data[:, 1])
         data_1 = np.array(self.X_all)
@@ -31,11 +35,12 @@ class input_handler:
             rec = np.concatenate((rec,[rec[0]]),axis= 0)
             plt.plot(rec[:, 0], rec[:, 1],color = 'red')
         data_barrier = np.array(barriers)
-        data_barrier = np.reshape(data_barrier,(int(len(self.X_all)/4),4,2))
+        data_barrier = np.reshape(data_barrier,(int(len(barriers)/4),4,2))
         for rec in data_barrier:
             rec = np.concatenate((rec,[rec[0]]),axis= 0)
             plt.plot(rec[:, 0], rec[:, 1],color = 'green')
         plt.show()
+        
         for index in path_corners_index: #find the longer side => zig-zag to end point
             corner_num = index[0] % 4
             if (abs(self.X_all[index[0]][0] - self.X_all[index[1]][0])) > (abs(self.X_all[index[0]][1] - self.X_all[index[1]][1])): #if longer side = horizon side = row side
@@ -169,7 +174,12 @@ class input_handler:
             
             self.X_all.extend([[x_lu,y_lu],[x_ru,y_ru],[x_rd,y_rd],[x_ld,y_ld]])
         return self.X_all
+    def vec_euler(self,vector):
+        return (vector[0]**2 + vector[1]**2)**0.5
+    def extract_barrier_path(self):
+        return self.barrier_path
     def barrier_detect(self, vector_barrier, euler_barrier, vector, euler):# size of all inputs : num_rec_corners x B x [value]
+        self.barrier_path = []
         rewards = [0]*len(vector_barrier[0])
         vector = vector.tolist()
         euler = euler.tolist()
@@ -182,15 +192,30 @@ class input_handler:
                 temp_vector = single_map_barrier[i:i+4]
                 temp_euler = single_map_euler[i:i+4] # load four points of an object
                 temp = []
-                for vec in temp_vector:
-                    temp.append(self.angle(vec))
-                temp.sort() # small -> big
+                idxs = [j for j in range(i,i+4)]
+                for vec,eul,k in zip(temp_vector,temp_euler,idxs):
+                    temp.append([self.angle(vec),vec,eul,k]) # k for latter operation of index
+                temp = sorted(temp, key = lambda temp : temp[0]) # small -> big
                 temp_euler.sort()
                 next_point_vec = self.angle(vector[batch_num])
-                if next_point_vec >= temp[0] and next_point_vec <= temp[-1]:
+                if next_point_vec >= temp[0][0] and next_point_vec <= temp[-1][0]:
                     if euler[batch_num] > temp_euler[0]:
                         # collision detected
-                        rewards[batch_num]+=30
+                        if (next_point_vec - temp[0][0]) < (next_point_vec - temp[-1][0]):
+                            self.barrier_path.append(temp[0][3])
+                            self.barrier_path.append(temp[1][3])
+                            vec_dis = [temp[0][1][0] - temp[1][1][0],temp[0][1][1] - temp[1][1][1]]
+                            vec_dis = self.vec_euler(vec_dis)
+                            vec_dis += self.vec_euler([vector[batch_num][0] - temp[1][1][0],vector[batch_num][1] - temp[1][1][1]])
+                            vec_dis += self.vec_euler(temp[0][1])
+                        else:
+                            self.barrier_path.append(temp[-1][3])
+                            self.barrier_path.append(temp[-2][3])
+                            vec_dis = [temp[-1][1][0] - temp[-2][1][0],temp[-1][1][1] - temp[-2][1][1]]
+                            vec_dis = self.vec_euler(vec_dis)
+                            vec_dis += self.vec_euler([vector[batch_num][0] - temp[-2][1][0],vector[batch_num][1] - temp[-2][1][1]])
+                            vec_dis += self.vec_euler(temp[-1][1])    
+                        rewards[batch_num]+= vec_dis - euler[batch_num]
                     else:
                         pass
                 else:
