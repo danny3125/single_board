@@ -26,7 +26,8 @@ class input_handler:
             if len(index) == 2:
                 path_corners.extend([self.X_all[index[0]],self.X_all[index[1]]])
             else:
-                path_corners.extend([barriers[index[0]],barriers[index[1]],self.X_all[index[0]],self.X_all[index[1]]])
+                print(index)
+                path_corners.extend([barriers[index[0]],barriers[index[1]],self.X_all[index[2]],self.X_all[index[3]]])
         data = np.array(path_corners)
         plt.plot(data[:, 0], data[:, 1])
         data_1 = np.array(self.X_all)
@@ -201,16 +202,27 @@ class input_handler:
                 if next_point_vec >= temp[0][0] and next_point_vec <= temp[-1][0]:
                     if euler[batch_num] > temp_euler[0]:
                         # collision detected
-                        if (next_point_vec - temp[0][0]) < (next_point_vec - temp[-1][0]):
-                            self.barrier_path.append(temp[0][3])
-                            self.barrier_path.append(temp[1][3])
+                        if (abs(next_point_vec - temp[0][0])) < abs((next_point_vec - temp[-1][0])):
+                            if batch_num == 0:
+                                if temp[0][2] < temp[1][2]:
+                                    self.barrier_path.append(temp[0][3])
+                                    self.barrier_path.append(temp[1][3])
+                                else:
+                                    self.barrier_path.append(temp[1][3])
+                                    self.barrier_path.append(temp[0][3])
+
                             vec_dis = [temp[0][1][0] - temp[1][1][0],temp[0][1][1] - temp[1][1][1]]
                             vec_dis = self.vec_euler(vec_dis)
                             vec_dis += self.vec_euler([vector[batch_num][0] - temp[1][1][0],vector[batch_num][1] - temp[1][1][1]])
                             vec_dis += self.vec_euler(temp[0][1])
                         else:
-                            self.barrier_path.append(temp[-1][3])
-                            self.barrier_path.append(temp[-2][3])
+                            if batch_num == 0:
+                                if temp[-1][2] < temp[-2][2]:
+                                    self.barrier_path.append(temp[-1][3])
+                                    self.barrier_path.append(temp[-2][3])
+                                else:
+                                    self.barrier_path.append(temp[-2][3])
+                                    self.barrier_path.append(temp[-1][3])
                             vec_dis = [temp[-1][1][0] - temp[-2][1][0],temp[-1][1][1] - temp[-2][1][1]]
                             vec_dis = self.vec_euler(vec_dis)
                             vec_dis += self.vec_euler([vector[batch_num][0] - temp[-2][1][0],vector[batch_num][1] - temp[-2][1][1]])
