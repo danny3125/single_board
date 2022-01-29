@@ -134,7 +134,7 @@ class input_handler:
                 long_side = len(rectangle)
             else:
                 long_side = len(rectangle[0])   
-            if(int(long_side / self.targetmatrices[1] % 2 == s0)):
+            if(int(long_side / self.targetmatrices[1] % 2 == 0)):
                 odd_even = 0
             else:
                 odd_even = 1
