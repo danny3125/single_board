@@ -17,7 +17,7 @@ class input_handler:
         data = np.array(path_corners)
         plt.plot(data[:, 0], data[:, 1],color = 'black')
         data_1 = np.array(self.X_all)
-        data_1 = np.reshape(data_1,(34,4,2))
+        data_1 = np.reshape(data_1,(20,4,2))
         for rec in data_1:
             rec = np.concatenate((rec,[rec[0]]),axis= 0)
             plt.plot(rec[:, 0], rec[:, 1],color = 'red')

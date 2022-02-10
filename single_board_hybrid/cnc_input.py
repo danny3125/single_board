@@ -9,7 +9,7 @@ class cnc_input:
         self.photo_name = photo_name
         img = mpimg.imread(self.photo_name)
         gray = img[:,:,2]
-        plt.imshow(gray, cmap = plt.get_cmap('gray'))
+        #plt.imshow(gray, cmap = plt.get_cmap('gray'))
         self.gray = gray
     
     def target_area(self, x, y, x2, y2):
