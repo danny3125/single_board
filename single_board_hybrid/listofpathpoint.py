@@ -161,7 +161,7 @@ class input_handler:
             rectangle = matrix[0]
             x_lu = matrix[1]
             y_lu = matrix[2]
-            self.X_all.extend([(x_lu + len(rectangle[0])*0.5),(y_lu + len(rectangle)*0.5)])
+            self.X_all.extend([[(x_lu + len(rectangle[0])*0.5),(y_lu + len(rectangle)*0.5)]])
         return self.X_all
     # using barrier_avoid to let the agent take a movement between decisions
     # the barrier points should be different from normal tsp points, they should be loaded in another way, and be considered in another way 
