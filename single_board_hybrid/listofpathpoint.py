@@ -155,6 +155,14 @@ class input_handler:
             
             self.X_all.extend([[x_lu,y_lu],[x_ru,y_ru],[x_rd,y_rd],[x_ld,y_ld]])
         return self.X_all
+    def central_point(self):
+        self.X_all = []
+        for matrix in self.target_metrices[0]:
+            rectangle = matrix[0]
+            x_lu = matrix[1]
+            y_lu = matrix[2]
+            self.X_all.extend([(x_lu + len(rectangle[0])*0.5),(y_lu + len(rectangle)*0.5)])
+        return self.X_all
     # using barrier_avoid to let the agent take a movement between decisions
     # the barrier points should be different from normal tsp points, they should be loaded in another way, and be considered in another way 
     #def barrier_avoid(self, recent_points):
