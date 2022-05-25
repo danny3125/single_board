@@ -17,7 +17,7 @@ class input_handler:
         data = np.array(path_corners)
         plt.plot(data[:, 0], data[:, 1],color = 'black')
         data_1 = np.array(self.X_all)
-        data_1 = np.reshape(data_1,(34,4,2))
+        data_1 = np.reshape(data_1,(25,4,2))
         for rec in data_1:
             rec = np.concatenate((rec,[rec[0]]),axis= 0)
             plt.plot(rec[:, 0], rec[:, 1],color = 'red')
@@ -167,15 +167,15 @@ class input_handler:
             index = 4*int(inf)
             corner = inf - int(inf)
             if len(rectangle) > len(rectangle[0]): # is column the long side?
-                long_side = len(rectangle[0])
-                if (int(long_side / self.target_metrices[1]) % 2 == 0): # take even times to spray 
-                    if corner == 0: #is a left up corner, outcorner = right up
-                        feature = torch.cat((feature,torch.Tensor([index + 1,index + 2,index + 3])),0) #append [outcorner,getout_corners]
-                    elif corner == 0.25: # is a right up , out = left up
+                short_side = len(rectangle[0])
+                if (int(short_side / self.target_metrices[1]) % 2 == 0): # take even times to spray
+                    if corner == 0: #is a left up corner
+                        feature = torch.cat((feature,torch.Tensor([index + 1,index + 2,index + 3])),0)#append [outcorner,getout_corners]
+                    elif corner == 0.25: # is a right up
                         feature = torch.cat((feature,torch.Tensor([index + 0,index + 2,index + 3])),0)
-                    elif corner == 0.5: #is a right down, out = left down
+                    elif corner == 0.5: #is a right down
                         feature = torch.cat((feature,torch.Tensor([index + 3,index + 0,index + 1])),0)
-                    else:               # is a left down, out = right down
+                    else:               # is a left down
                         feature = torch.cat((feature,torch.Tensor([index + 2,index + 0,index + 1])),0)
                 else:    #take odd time to spray
                     if corner == 0: #is a left up corner
@@ -188,16 +188,16 @@ class input_handler:
                         feature = torch.cat((feature,torch.Tensor([index + 1,index + 0,index + 2])),0)
                         
             else:
-                long_side = len(rectangle) #row = long side
-                if (int(long_side / self.target_metrices[1]) % 2 == 0): # take even times to spray   
-                    if corner == 0: #is a left up corner
-                        feature = torch.cat((feature,torch.Tensor([index + 3,index + 1,index + 2])),0)#append [outcorner,getout_corners]
-                    elif corner == 0.25: # is a right up 
+                short_side = len(rectangle) #row = long side
+                if (int(short_side / self.target_metrices[1]) % 2 == 0): # take even times to spray
+                    if corner == 0: #is a left up corner, outcorner = left down
+                        feature = torch.cat((feature,torch.Tensor([index + 3,index + 1,index + 2])),0) #append [outcorner,getout_corners]
+                    elif corner == 0.25: # is a right up , out = right down
                         feature = torch.cat((feature,torch.Tensor([index + 2,index + 0,index + 3])),0)
-                    elif corner == 0.5: #is a right down
+                    elif corner == 0.5: #is a right down, out = right up
                         feature = torch.cat((feature,torch.Tensor([index + 1,index + 0,index + 3])),0)
-                    else:               # is a left down
-                        feature = torch.cat((feature,torch.Tensor([index + 0,index + 1,index + 2])),0)
+                    else:               # is a left down, out = left up
+                        feature = torch.cat((feature,torch.Tensor([index + 1,index + 0,index + 2])),0)
                 else:
                     if corner == 0: #is a left up corner
                         feature = torch.cat((feature,torch.Tensor([index + 2,index + 1,index + 3])),0) #append [outcorner,getout_corners]

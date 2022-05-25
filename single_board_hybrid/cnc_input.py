@@ -50,7 +50,7 @@ def main(argv = None):
                 for item in shapes :
                     start_point,end_point = cnc_input.shapes_dealing(item)
                     if start_point[0] > 0:
-                        target_area = cnc_input.target_area(photo, start_point[0],start_point[1],end_point[0],end_point[1])
+                        target_area = photo.target_area(start_point[0],start_point[1],end_point[0],end_point[1])
                         target_areas.append((target_area,start_point[0],start_point[1]))
                     else:
                         gluewidth = end_point[0]
