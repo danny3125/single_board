@@ -166,6 +166,7 @@ class input_handler:
     # using barrier_avoid to let the agent take a movement between decisions
     # the barrier points should be different from normal tsp points, they should be loaded in another way, and be considered in another way 
     #def barrier_avoid(self, recent_points):
+
         
     def outcorner_getout(self,rectangle_inf,B):# horizontal line = row
         feature = torch.Tensor([])
